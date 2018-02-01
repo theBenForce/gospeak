@@ -1,0 +1,5 @@
+package gospeak
+
+func init() {
+
+}
