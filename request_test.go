@@ -15,6 +15,18 @@ func TestAlexaIntentRequestParsing(t *testing.T) {
 	assert.EqualValues(t, "IntentRequest", request.GetRequestType())
 	assert.EqualValues(t, "GetZodiacHoroscopeIntent", request.GetIntent())
 
-	slotValue := request.GetSlot("ZodiacSign")
+	slotValue := request.GetArgument("ZodiacSign")
 	assert.EqualValues(t, "virgo", slotValue)
+}
+
+func TestDialogflowIntentRequestParsing(t *testing.T) {
+	buf, _ := ioutil.ReadFile("example-requests/dialogflow/intent-request.json")
+
+	request := ParseRequest(buf)
+
+	assert.EqualValues(t, "IntentRequest", request.GetRequestType())
+	assert.EqualValues(t, "getItem", request.GetIntent())
+
+	slotValue := request.GetArgument("Item")
+	assert.EqualValues(t, "mug", slotValue)
 }
