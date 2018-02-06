@@ -1,0 +1,30 @@
+{
+    "user": {
+        "userId": "wCBxFjVLK8I+nxIXfFOHEf/iAvvaTFuzUdBw6Gv5K3Q="
+    },
+    "conversation": {
+        "conversationId": "1494709404186",
+        "type": "NEW"
+    },
+    "inputs": [
+        {
+            "intent": "actions.intent.MAIN",
+            "rawInputs": [
+                {
+                    "inputType": "KEYBOARD",
+                    "query": "talk to my test app"
+                }
+            ]
+        }
+    ],
+    "surface": {
+        "capabilities": [
+            {
+                "name": "actions.capability.AUDIO_OUTPUT"
+            },
+            {
+                "name": "actions.capability.SCREEN_OUTPUT"
+            }
+        ]
+    }
+}

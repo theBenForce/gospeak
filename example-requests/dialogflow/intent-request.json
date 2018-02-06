@@ -1,0 +1,30 @@
+{
+  "responseId": "ae94bee0-691f-4ebb-8324-093766c1d442",
+  "queryResult": {
+    "queryText": "Where did I put my mug?",
+    "action": "getItem",
+    "parameters": {
+      "Item": "mug",
+      "PlacementAction": "put"
+    },
+    "allRequiredParamsPresent": true,
+    "fulfillmentMessages": [{
+      "text": {
+        "text": [""]
+      }
+    }],
+    "intent": {
+      "name": "projects/TEST/agent/intents/30676bf7-2c9e-4959-b13b-baa33d265203",
+      "displayName": "GetItem"
+    },
+    "intentDetectionConfidence": 0.92,
+    "diagnosticInfo": {
+    },
+    "languageCode": "en"
+  },
+  "originalDetectIntentRequest": {
+    "payload": {
+    }
+  },
+  "session": "projects/TEST/agent/sessions/3f986a28-4c8d-4ee3-95bb-855a3065bece"
+}
