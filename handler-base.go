@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/blforce/gospeakCommon"
+
+	"github.com/aws/aws-lambda-go/events"
 )
 
 type IntentHandler func(gospeakCommon.Request) gospeakCommon.Response
@@ -27,9 +29,12 @@ func (h Handler) RegisterIntentHandler(intentName string, handler IntentHandler)
 }
 
 func (h Handler) ExecuteRequest(req gospeakCommon.Request) gospeakCommon.Response {
-	method := h.handlers[req.GetIntent()]
-
-	return method(req)
+	if method, ok := h.handlers[req.GetIntent()]; ok {
+		return method(req)
+	} else {
+		fmt.Printf("Unknown intent: %s\n", req.GetIntent())
+		return req.GetResponse().SetText(fmt.Sprintf("Unknown intent: %s", req.GetIntent()))
+	}
 }
 
 func (h Handler) HandleWebRequest(w http.ResponseWriter, r *http.Request) {
@@ -40,11 +45,13 @@ func (h Handler) HandleWebRequest(w http.ResponseWriter, r *http.Request) {
 	w.Write(response.GetBytes())
 }
 
-func (h Handler) HandleLambdaRequest(ctx context.Context, event map[string]interface{}) (string, error) {
+func (h Handler) HandleLambdaRequest(ctx context.Context, event map[string]interface{}) (interface{}, error) {
 	var eventBody string
+	isApiGateway := false
 
 	if body, ok := event["body"]; ok {
 		eventBody = fmt.Sprintf("%s", body)
+		isApiGateway = true
 	} else {
 		original, err := json.Marshal(event)
 
@@ -57,6 +64,18 @@ func (h Handler) HandleLambdaRequest(ctx context.Context, event map[string]inter
 
 	req := ParseRequest([]byte(eventBody))
 
-	response := h.ExecuteRequest(req)
-	return string(response.GetBytes()), nil
+	var response interface{}
+	responseBody := h.ExecuteRequest(req)
+
+	if isApiGateway {
+
+		response = events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Body:       string(responseBody.GetBytes()),
+		}
+	} else {
+		response = responseBody
+	}
+
+	return response, nil
 }
