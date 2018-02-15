@@ -1,6 +1,9 @@
 package gospeak
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/blforce/gospeakCommon"
@@ -35,4 +38,25 @@ func (h Handler) HandleWebRequest(w http.ResponseWriter, r *http.Request) {
 	response := h.ExecuteRequest(req)
 	w.WriteHeader(http.StatusOK)
 	w.Write(response.GetBytes())
+}
+
+func (h Handler) HandleLambdaRequest(ctx context.Context, event map[string]interface{}) (string, error) {
+	var eventBody string
+
+	if body, ok := event["body"]; ok {
+		eventBody = fmt.Sprintf("%s", body)
+	} else {
+		original, err := json.Marshal(event)
+
+		if err != nil {
+			panic(err)
+		}
+
+		eventBody = string(original)
+	}
+
+	req := ParseRequest([]byte(eventBody))
+
+	response := h.ExecuteRequest(req)
+	return string(response.GetBytes()), nil
 }
