@@ -13,8 +13,8 @@ import (
 
 func ParseRequestStream(r io.ReadCloser) gospeakCommon.Request {
 	data, _ := ioutil.ReadAll(r)
-
 	defer r.Close()
+	defer ioutil.WriteFile("request.json", data, 0644)
 
 	return ParseRequest(data)
 }
