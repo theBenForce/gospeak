@@ -17,17 +17,27 @@ type RequestHandler func(gospeakCommon.Request) gospeakCommon.Response
 
 type Handler struct {
 	handlers map[string]RequestHandler
+	aliases  map[string]string
 }
 
 func NewHandler() Handler {
 	result := Handler{}
 	result.handlers = make(map[string]RequestHandler)
+	result.aliases = make(map[string]string)
 
 	return result
 }
 
 func (h Handler) RegisterIntentHandler(intentName string, handler RequestHandler) {
 	h.handlers[intentName] = handler
+}
+
+func (h Handler) Redirect(intent, target string) {
+	h.aliases[intent] = target
+}
+
+func (h Handler) RedirectLaunch(target string) {
+	h.Redirect("_LaunchRequest", target)
 }
 
 func (h Handler) RegisterUnhandled(handler RequestHandler) {
@@ -42,8 +52,18 @@ func (h Handler) RegisterSessionEndedHandler(handler RequestHandler) {
 	h.RegisterIntentHandler("_SessionEndedRequest", handler)
 }
 
+func (h Handler) getRequestIntent(req gospeakCommon.Request) string {
+	originalIntent := req.GetIntent()
+
+	if alias, ok := h.aliases[originalIntent]; ok {
+		return alias
+	}
+
+	return originalIntent
+}
+
 func (h Handler) ExecuteRequest(req gospeakCommon.Request) gospeakCommon.Response {
-	if method, ok := h.handlers[req.GetIntent()]; ok {
+	if method, ok := h.handlers[h.getRequestIntent(req)]; ok {
 		return method(req)
 	} else if method, ok := h.handlers["Unhandled"]; ok {
 		return method(req)
