@@ -5,13 +5,13 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/blforce/gospeakAlexa"
-	"github.com/blforce/gospeakCommon"
-	"github.com/blforce/gospeakDialogflow"
-	"github.com/blforce/gospeakGoogleAssistant"
+	"github.com/blforce/gospeak/platforms/alexa"
+	"github.com/blforce/gospeak/platforms/basePlatform"
+	"github.com/blforce/gospeak/platforms/dialogflow"
+	"github.com/blforce/gospeak/platforms/googleAssistant"
 )
 
-func ParseRequestStream(r io.ReadCloser) gospeakCommon.Request {
+func ParseRequestStream(r io.ReadCloser) basePlatform.Request {
 	data, _ := ioutil.ReadAll(r)
 	defer r.Close()
 	defer ioutil.WriteFile("request.json", data, 0644)
@@ -20,13 +20,13 @@ func ParseRequestStream(r io.ReadCloser) gospeakCommon.Request {
 }
 
 // ParseRequest turns raw JSON bytes into a Request for whatever assistant platform you're working with
-func ParseRequest(data []byte) gospeakCommon.Request {
+func ParseRequest(data []byte) basePlatform.Request {
 
 	var formatTest map[string]string
 	json.Unmarshal(data, &formatTest)
 
 	if _, ok := formatTest["queryResult"]; ok {
-		var dialog gospeakDialogflow.Request
+		var dialog dialogflow.Request
 		json.Unmarshal(data, &dialog)
 		return dialog
 	}
@@ -34,12 +34,12 @@ func ParseRequest(data []byte) gospeakCommon.Request {
 	_, hasUser := formatTest["user"]
 	_, hasConversation := formatTest["conversation"]
 	if hasUser && hasConversation {
-		var google gospeakGoogleAssistant.Request
+		var google googleAssistant.Request
 		json.Unmarshal(data, &google)
 		return google
 	}
 
-	var alexa gospeakAlexa.Request
+	var alexa alexa.Request
 	json.Unmarshal(data, &alexa)
 
 	return alexa
