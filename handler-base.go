@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/blforce/gospeakCommon"
-	"github.com/blforce/src/github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambda"
+
+	"github.com/blforce/gospeak/platforms/basePlatform"
 
 	"github.com/aws/aws-lambda-go/events"
 )
 
-type RequestHandler func(gospeakCommon.Request) gospeakCommon.Response
+type RequestHandler func(basePlatform.Request) basePlatform.Response
 
 type Handler struct {
 	handlers map[string]RequestHandler
@@ -52,7 +53,7 @@ func (h Handler) RegisterSessionEndedHandler(handler RequestHandler) {
 	h.RegisterIntentHandler("_SessionEndedRequest", handler)
 }
 
-func (h Handler) getRequestIntent(req gospeakCommon.Request) string {
+func (h Handler) getRequestIntent(req basePlatform.Request) string {
 	originalIntent := req.GetIntent()
 
 	if alias, ok := h.aliases[originalIntent]; ok {
@@ -62,7 +63,7 @@ func (h Handler) getRequestIntent(req gospeakCommon.Request) string {
 	return originalIntent
 }
 
-func (h Handler) ExecuteRequest(req gospeakCommon.Request) gospeakCommon.Response {
+func (h Handler) ExecuteRequest(req basePlatform.Request) basePlatform.Response {
 	if method, ok := h.handlers[h.getRequestIntent(req)]; ok {
 		return method(req)
 	} else if method, ok := h.handlers["Unhandled"]; ok {
