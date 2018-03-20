@@ -7,3 +7,9 @@ before_install:
   - go get -v github.com/stretchr/testify/assert
   - go get -v github.com/aws/aws-lambda-go/lambda
   - go get -v github.com/aws/aws-lambda-go/events
+  
+script:
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
